@@ -16,7 +16,7 @@
 
 name: daily
 
-on: [push]
+on: [workflow_dispatch]
 
 jobs:
   ubuntu-18_04:

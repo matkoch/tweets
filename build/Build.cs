@@ -156,7 +156,7 @@ class Build : NukeBuild
         // .TriggeredBy(Tweet)
         .Executes(() =>
         {
-            SentTweets.Add(new SentTweet(){Name="foo"});
+            SentTweets.Add(new SentTweet(){Name="foo", Id = 123, Url = "moooo"});
 
             using var writer = new StreamWriter(SentTweetsFile);
             using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
