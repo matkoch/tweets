@@ -8,6 +8,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using JetBrains.Annotations;
 using Nuke.Common;
+using Nuke.Common.CI;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Execution;
 using Nuke.Common.Git;
@@ -146,6 +147,8 @@ class Build : NukeBuild
             }
         });
 
+    [CI] readonly GitHubActions GitHubActions;
+    [Parameter] readonly string GitHubToken;
     [GitRepository] readonly GitRepository Repository;
 
     Target SaveTweets => _ => _
@@ -160,8 +163,10 @@ class Build : NukeBuild
             csv.Context.RegisterClassMap<SentTweetMap>();
             csv.WriteRecords(SentTweets);
 
-            Git($"config user.name {"Matthias Koch".DoubleQuote()}");
-            Git($"config user.email {"ithrowexceptions@gmail.com".DoubleQuote()}");
+            var remote = $"https://{GitHubActions.GitHubActor}:{GitHubToken}@github.com/{GitHubActions.GitHubRepository}";
+            Git($"git remote add github {remote.DoubleQuote()}");
+            // Git($"config user.name {"Matthias Koch".DoubleQuote()}");
+            // Git($"config user.email {"ithrowexceptions@gmail.com".DoubleQuote()}");
             Git($"add {SentTweetsFile}");
             Git($"commit -m {$"Update".DoubleQuote()}");
             Git($"push origin {Repository.Branch}");
