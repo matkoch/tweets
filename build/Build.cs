@@ -8,7 +8,9 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using JetBrains.Annotations;
 using Nuke.Common;
+using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Execution;
+using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.Utilities;
 using Nuke.Common.Utilities.Collections;
@@ -17,7 +19,12 @@ using Tweetinvi.Models;
 using Tweetinvi.Parameters;
 using static Nuke.Common.IO.TextTasks;
 using static Nuke.Common.Logger;
+using static Nuke.Common.Tools.Git.GitTasks;
 
+[GitHubActions(
+    "daily",
+    GitHubActionsImage.Ubuntu1804,
+    InvokedTargets = new[] {nameof(SaveTweets)})]
 [CheckBuildProjectConfigurations]
 class Build : NukeBuild
 {
@@ -48,6 +55,10 @@ class Build : NukeBuild
 
     Target UpdateTweets => _ => _
         .DependsOn(LoadTweets)
+        .Requires(() => ConsumerKey)
+        .Requires(() => ConsumerSecret)
+        .Requires(() => AccessToken)
+        .Requires(() => AccessTokenSecret)
         .Executes(() =>
         {
             var client = new TwitterClient(
@@ -135,15 +146,23 @@ class Build : NukeBuild
             }
         });
 
+    [GitRepository] readonly GitRepository Repository;
+
     Target SaveTweets => _ => _
-        .DependsOn(UpdateTweets)
-        .TriggeredBy(Tweet)
+        .DependsOn(LoadTweets)
+        // .TriggeredBy(Tweet)
         .Executes(() =>
         {
+            SentTweets.Add(new SentTweet(){Name="foo"});
+
             using var writer = new StreamWriter(SentTweetsFile);
             using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
             csv.Context.RegisterClassMap<SentTweetMap>();
             csv.WriteRecords(SentTweets);
+
+            Git($"add {SentTweetsFile}");
+            Git($"commit -m {$"Update".DoubleQuote()}");
+            Git($"push origin {Repository.Branch}");
         });
 
     class SentTweet
