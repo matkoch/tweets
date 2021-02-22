@@ -164,7 +164,7 @@ class Build : NukeBuild
             csv.WriteRecords(SentTweets);
 
             var remote = $"https://{GitHubActions.GitHubActor}:{GitHubToken}@github.com/{GitHubActions.GitHubRepository}";
-            Git($"remote add github {remote.DoubleQuote()}");
+            Git($"remote add origin {remote.DoubleQuote()}");
             Git($"config user.name {"Matthias Koch".DoubleQuote()}");
             Git($"config user.email {"ithrowexceptions@gmail.com".DoubleQuote()}");
             Git($"add {SentTweetsFile}");
