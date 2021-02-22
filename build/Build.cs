@@ -153,6 +153,7 @@ class Build : NukeBuild
 
     Target SaveTweets => _ => _
         .DependsOn(LoadTweets)
+        .Triggers(Commit)
         // .TriggeredBy(Tweet)
         .Executes(() =>
         {
@@ -162,7 +163,11 @@ class Build : NukeBuild
             using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
             csv.Context.RegisterClassMap<SentTweetMap>();
             csv.WriteRecords(SentTweets);
+        });
 
+    Target Commit => _ => _
+        .Executes(() =>
+        {
             var remote = $"https://{GitHubActions.GitHubActor}:{GitHubToken}@github.com/{GitHubActions.GitHubRepository}";
             Git($"remote set-url origin {remote.DoubleQuote()}");
             Git($"config user.name {"Matthias Koch".DoubleQuote()}");
