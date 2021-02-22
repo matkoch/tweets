@@ -165,8 +165,8 @@ class Build : NukeBuild
 
             var remote = $"https://{GitHubActions.GitHubActor}:{GitHubToken}@github.com/{GitHubActions.GitHubRepository}";
             Git($"remote add github {remote.DoubleQuote()}");
-            // Git($"config user.name {"Matthias Koch".DoubleQuote()}");
-            // Git($"config user.email {"ithrowexceptions@gmail.com".DoubleQuote()}");
+            Git($"config user.name {"Matthias Koch".DoubleQuote()}");
+            Git($"config user.email {"ithrowexceptions@gmail.com".DoubleQuote()}");
             Git($"add {SentTweetsFile}");
             Git($"commit -m {$"Update".DoubleQuote()}");
             Git($"push origin {Repository.Branch}");
