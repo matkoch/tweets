@@ -1,0 +1,1 @@
+Work smart, not hard! 🤓 Many quick-fixes are available as "bulk fixes", that can be applied to the whole solution at once. Anyone wants to migrate to new language features? 🆕 Or remove unused usings directives? 😄
