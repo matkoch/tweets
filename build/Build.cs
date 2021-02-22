@@ -160,6 +160,8 @@ class Build : NukeBuild
             csv.Context.RegisterClassMap<SentTweetMap>();
             csv.WriteRecords(SentTweets);
 
+            Git($"config user.name {"Matthias Koch".DoubleQuote()}");
+            Git($"config user.email {"ithrowexceptions@gmail.com".DoubleQuote()}");
             Git($"add {SentTweetsFile}");
             Git($"commit -m {$"Update".DoubleQuote()}");
             Git($"push origin {Repository.Branch}");
