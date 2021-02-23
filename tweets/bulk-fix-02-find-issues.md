@@ -1,1 +1,1 @@
-Not all quick-fixes can be applied in bulk, but we can still 
+If a quick-fix cannot be applied in bulk (often for a reason), you can still go into "fix this particular issue" focus mode, for instance when you want to fix all typos: 

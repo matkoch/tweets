@@ -127,17 +127,16 @@ class Build : NukeBuild
                                 : MediaCategory.Image
                         }))
                     .Select(x => x.Result).ToList();
-
-                var tweetParameters = new PublishTweetParameters
+                var parameters = new PublishTweetParameters
                 {
                     InReplyToTweetId = SentTweets.FirstOrDefault()?.Id,
                     Text = text,
                     Medias = media
                 };
 
-                var tweet = await client.Tweets.PublishTweetAsync(tweetParameters);
+                var tweet = await client.Tweets.PublishTweetAsync(parameters);
                 Info($"Sent tweet: {tweetName} [{tweet.Url}]");
-                SentTweets.Add(new SentTweet
+                SentTweets.Insert(index: 0, new SentTweet
                 {
                     Id = tweet.Id,
                     DateTime = DateTime.Now,
@@ -147,31 +146,34 @@ class Build : NukeBuild
             }
         });
 
-    [CI] readonly GitHubActions GitHubActions;
+    [CI] readonly GitHubActions Actions;
     [Parameter] readonly string GitHubToken;
     [GitRepository] readonly GitRepository Repository;
 
     Target SaveTweets => _ => _
         .DependsOn(LoadTweets)
         .Triggers(Commit)
-        // .TriggeredBy(Tweet)
+        .TriggeredBy(Tweet)
         .Executes(() =>
         {
-            SentTweets.Add(new SentTweet(){Name="foo", Id = 123, Url = "moooo"});
-
             using var writer = new StreamWriter(SentTweetsFile);
             using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
             csv.Context.RegisterClassMap<SentTweetMap>();
             csv.WriteRecords(SentTweets);
         });
 
+    string CommitterName => "Matthias Koch";
+    string CommitterEmail => "ithrowexceptions@gmail.com";
+
     Target Commit => _ => _
         .Executes(() =>
         {
-            var remote = $"https://{GitHubActions.GitHubActor}:{GitHubToken}@github.com/{GitHubActions.GitHubRepository}";
+            // https://github.community/t/how-does-one-commit-from-an-action/16127
+            // https://github.com/eine/actions/blob/3f0701c2f20780984590bd955839a38b75c96668/.github/workflows/push.yml#L33-L48
+            var remote = $"https://{Actions.GitHubActor}:{GitHubToken}@github.com/{Actions.GitHubRepository}";
             Git($"remote set-url origin {remote.DoubleQuote()}");
-            Git($"config user.name {"Matthias Koch".DoubleQuote()}");
-            Git($"config user.email {"ithrowexceptions@gmail.com".DoubleQuote()}");
+            Git($"config user.name {CommitterName.DoubleQuote()}");
+            Git($"config user.email {CommitterEmail.DoubleQuote()}");
             Git($"add {SentTweetsFile}");
             Git($"commit -m {"Update".DoubleQuote()}");
             Git($"push origin HEAD:{Repository.Branch}");

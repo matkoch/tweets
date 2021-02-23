@@ -1,0 +1,1 @@
+And actually, this is what I had initially, but @JetBrainsRider made me look at that code twice, and execute that sweet little hint to make it even more readable! 💚🤓
